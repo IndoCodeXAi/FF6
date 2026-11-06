@@ -17,6 +17,26 @@ android {
         externalNativeBuild { cmake { cppFlags += "-std=c++17" } }
     }
 
+    // Kunci release disediakan sendiri melalui GitHub Actions Secrets.
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release.keystore")
+            storePassword = System.getenv("RELEASE_STORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: ""
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            // Untuk pengujian saja; jangan sebarkan APK debug.
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+        }
+    }
+
     externalNativeBuild {
         cmake { path = file("src/main/cpp/CMakeLists.txt") }
     }
